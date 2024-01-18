@@ -1,0 +1,36 @@
+name: Build Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: Jimver/cuda-toolkit@v0.2.14
+        id: cuda-toolkit
+        with:
+          cuda: "11.8.0"
+
+      - run: apt-get install ninja-build
+
+      - name: Install PyTorch
+        run: pip install torch=2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+
+      - name: Build
+        run: |
+          python setup.py bdist_wheel
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist/
