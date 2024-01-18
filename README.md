@@ -1,9 +1,11 @@
 # PyTorch C++ Module
 
+PyTorch C++ Module package.
+
 ## Install
 
 Before installing this repository, you need to install torch and CUDA
-to build CUDA ext_module.
+to build module.
 
 ```bash
 pip install torch
