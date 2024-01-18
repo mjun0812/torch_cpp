@@ -32,8 +32,13 @@ jobs:
         run: |
           TORCH_CUDA_ARCH_LIST="3.5;5.0;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0+PTX" python setup.py bdist_wheel
 
-      - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package
-          path: dist/
+      - name: Commit push
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Commit and push wheel
+        run: |
+          git add -f ./dist/*.whl
+          git commit -m 'update wheel'
+          git push
