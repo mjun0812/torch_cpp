@@ -36,6 +36,7 @@ jobs:
           cuda: ${{ matrix.cuda }}
           linux-local-args: '["--toolkit"]'
           use-github-cache: false
+          method: "network"
 
       - run: sudo apt-get install ninja-build
 
