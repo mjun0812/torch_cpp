@@ -53,10 +53,14 @@ def get_extensions():
 def get_version():
     init_py_path = os.path.join(os.path.dirname(__file__), "torch_cpp", "__init__.py")
     version = "1.0.0"
+    # get library version
     with open(init_py_path) as f:
         for line in f:
             if line.startswith("__version__"):
                 version = eval(line.split("=")[-1])
+    # add torch version
+    version += f"+torch{torch.__version__.replace('.', '')}"
+    # add build version
     if os.getenv("BUILD_VERSION"):
         version += f"+{os.getenv('BUILD_VERSION', '')}"
     return version
