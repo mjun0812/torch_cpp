@@ -50,9 +50,21 @@ def get_extensions():
     return ext_modules
 
 
+def get_version():
+    init_py_path = os.path.join(os.path.dirname(__file__), "torch_cpp", "__init__.py")
+    version = "1.0.0"
+    with open(init_py_path) as f:
+        for line in f:
+            if line.startswith("__version__"):
+                version = eval(line.split("=")[-1])
+    if os.getenv("BUILD_VERSION"):
+        version += f"+{os.getenv('BUILD_VERSION', '')}"
+    return version
+
+
 setup(
     name="torch_cpp",
-    version="1.0.0",
+    version=get_version(),
     author="Junya Morioka",
     description="PyTorch C++ Module",
     install_requires=["torch"],
