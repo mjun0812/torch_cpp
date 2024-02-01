@@ -149,6 +149,7 @@ class FlashDeformAttn(nn.Module):
             sampling_locations,
             attention_weights,
             self.im2col_step,
+            self.n_points,
         )
         output = self.output_proj(output)
         return output

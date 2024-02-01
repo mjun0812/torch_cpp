@@ -158,7 +158,6 @@ class DCNv4(nn.Module):
             self.remove_center,
         )
 
-        x = x.view(N, L, -1)
         if self.center_feature_scale:
             center_feature_scale = self.center_feature_scale_module(
                 x, self.center_feature_scale_proj_weight, self.center_feature_scale_proj_bias
@@ -169,6 +168,7 @@ class DCNv4(nn.Module):
                 .flatten(-2)
             )
             x = x * (1 - center_feature_scale) + x_proj * center_feature_scale
+        x = x.view(N, L, -1)
         if not self.without_pointwise:
             x = self.output_proj(x)
         return x

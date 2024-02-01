@@ -141,8 +141,9 @@ std::vector<at::Tensor> flash_deform_attn_cuda_backward(
   auto per_out_size = num_query * num_heads * num_channels;
 
   for (int n = 0; n < batch / im2col_step_; ++n) {
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        value.type(), "flash_deform_attn_backward_cuda", ([&] {
+    AT_DISPATCH_FLOATING_TYPES_AND2(
+        at::ScalarType::Half, at::ScalarType::BFloat16, value.scalar_type(),
+        "flash_deform_attn_backward_cuda", ([&] {
           flash_deformable_col2im_cuda(
               at::cuda::getCurrentCUDAStream(),
               value.data_ptr<scalar_t>() + n * im2col_step_ * per_value_size,
