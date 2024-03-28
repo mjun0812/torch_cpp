@@ -60,6 +60,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull --no-edit
-          git add ./dist/*.whl
+          git add -f ./dist/*.whl
+          git status
           git commit -m 'update wheel'
           git push
