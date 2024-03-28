@@ -46,8 +46,7 @@ jobs:
 
       - name: Install PyTorch
         run: |
-          pip install wheel numpy && \
-          ${{ matrix.torch_install_cmd }}
+          pip install wheel numpy && ${{ matrix.torch_install_cmd }}
 
       - name: Restore cache
         id: cache-restore
@@ -74,7 +73,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull --no-edit
-          git add -f ./dist/*.whl
-          git status
-          git commit -m 'update wheel'
+          git add ./dist/*.whl
+          git commit -m 'update wheel' || echo "No Commit File"
           git push
