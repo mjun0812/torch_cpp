@@ -14,18 +14,22 @@ jobs:
           - cuda: "11.8.0"
             python: "3.11"
             torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp311-cp311-linux_x86_64.whl
             sleep: 0
           - cuda: "11.8.0"
             python: "3.10"
             torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp310-cp310-linux_x86_64.whl
             sleep: 20
           - cuda: "12.1.1"
             python: "3.11"
             torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+            path: torch_cpp-1.0.0+torch212cu121-cp311-cp311-linux_x86_64.whl
             sleep: 40
           - cuda: "12.1.1"
             python: "3.10"
             torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+            path: torch_cpp-1.0.0+torch212cu121-cp310-cp310-linux_x86_64.whl
             sleep: 60
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +43,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
           linux-local-args: '["--toolkit"]'
-          use-github-cache: false
+          use-github-cache: true
           method: "network"
 
       - run: sudo apt-get install ninja-build
@@ -52,7 +56,7 @@ jobs:
         id: cache-restore
         uses: actions/cache/restore@v4
         with:
-          path: ./build
+          path: build
           key: ${{ matrix.python }}-${{ matrix.cuda }}-build
 
       - name: Build
@@ -60,12 +64,25 @@ jobs:
           export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
           python setup.py bdist_wheel
 
-      - name: Save Primes
+      - name: Save cache
         id: cache-save
         uses: actions/cache/save@v4
         with:
-          path: ./build
+          path: build
           key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+
+      - name: Create dist directory
+        id: print-path
+        run: |
+          artifact="$(echo 'build/${{ matrix.path }}' | basenc --base64url -wrap 0)"
+          echo "artifact=${artifact}" >> $GITHUB_OUTPUT
+
+      # - name: upload
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ steps.print-path.outputs.artifact }}
+      #     path: build/${{ matrix.path }}
+      #     retention-days: 1
 
       - name: Commit push
         run: |
@@ -73,6 +90,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull --no-edit
-          git add ./dist/*.whl
+          git add ./dist/${{ matrix.path }}
           git commit -m 'update wheel' || echo "No Commit File"
           git push
