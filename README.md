@@ -11,12 +11,12 @@ to build module.
 pip install torch
 
 # Source Install
-git clone https://github.com/mjun0812/torch-cpp-module.git
-cd torch-cpp-module
+git clone https://github.com/mjun0812/torch_cpp.git
+cd torch_cpp
 python setup.py build install --user
 
 # pip install from github
-pip install git+https://github.com/mjun0812/torch-cpp-module.git
+pip install git+https://github.com/mjun0812/torch_cpp.git
 ```
 
 ## Provided Module
