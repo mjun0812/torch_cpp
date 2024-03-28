@@ -58,8 +58,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          sleep ${{ matrix.sleep }}
-          git pull --no-edit
           git add -f ./dist/*.whl
+          sleep ${{ matrix.sleep }}
           git commit -m 'update wheel'
+          git pull --no-edit
           git push
