@@ -68,7 +68,10 @@ jobs:
         id: cache-save
         uses: actions/cache/save@v4
         with:
-          path: build
+          path: |
+            build
+            dist
+            torch_cpp.egg-info
           key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
       - name: Create dist directory
