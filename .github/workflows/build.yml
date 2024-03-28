@@ -77,18 +77,25 @@ jobs:
             torch_cpp.egg-info
           key: ${{ matrix.python }}-${{ matrix.cuda }}-build
 
-      # - name: Create dist directory
-      #   id: print-path
-      #   run: |
-      #     artifact="$(echo 'build/${{ matrix.path }}' | basenc --base64url -wrap 0)"
-      #     echo "artifact=${artifact}" >> $GITHUB_OUTPUT
+      - name: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: whl-${{ matrix.path }}
+          path: dist/${{ matrix.path }}
+          retention-days: 1
 
-      # - name: upload
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ steps.print-path.outputs.artifact }}
-      #     path: build/${{ matrix.path }}
-      #     retention-days: 1
+  commit:
+    needs: build-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Downloads
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          pattern: whl-*
+          merge-multiple: true
 
       - name: Commit push
         run: |
@@ -96,6 +103,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull --no-edit
-          git add -f ./dist/${{ matrix.path }}
+          git add -f ./dist/*
           git commit -m 'update wheel' || echo "No Commit File"
           git push
