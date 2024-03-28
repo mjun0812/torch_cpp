@@ -59,10 +59,10 @@ def get_version():
             if line.startswith("__version__"):
                 version = eval(line.split("=")[-1])
     # add torch version
-    version += f"+torch{torch.__version__.replace('.', '')}"
+    version += f"+torch{torch.__version__.replace('.', '').replace('+', '')}"
     # add build version
     if os.getenv("BUILD_VERSION"):
-        version += f"+{os.getenv('BUILD_VERSION', '')}"
+        version += f"{os.getenv('BUILD_VERSION', '')}"
     return version
 
 

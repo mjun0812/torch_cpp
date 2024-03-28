@@ -14,15 +14,19 @@ jobs:
           - cuda: "11.8.0"
             python: "3.11"
             torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+            sleep: 0
           - cuda: "11.8.0"
             python: "3.10"
             torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+            sleep: 20
           - cuda: "12.1.1"
             python: "3.11"
             torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+            sleep: 40
           - cuda: "12.1.1"
             python: "3.10"
             torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+            sleep: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +58,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          sleep ${{ matrix.sleep }}
           git pull --no-edit
           git add -f ./dist/*.whl
           git commit -m 'update wheel'
