@@ -56,7 +56,10 @@ jobs:
         id: cache-restore
         uses: actions/cache/restore@v4
         with:
-          path: build
+          path: |
+            build
+            dist
+            torch_cpp.egg-info
           key: ${{ matrix.python }}-${{ matrix.cuda }}-build
 
       - name: Build
@@ -72,13 +75,13 @@ jobs:
             build
             dist
             torch_cpp.egg-info
-          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+          key: ${{ matrix.python }}-${{ matrix.cuda }}-build
 
-      - name: Create dist directory
-        id: print-path
-        run: |
-          artifact="$(echo 'build/${{ matrix.path }}' | basenc --base64url -wrap 0)"
-          echo "artifact=${artifact}" >> $GITHUB_OUTPUT
+      # - name: Create dist directory
+      #   id: print-path
+      #   run: |
+      #     artifact="$(echo 'build/${{ matrix.path }}' | basenc --base64url -wrap 0)"
+      #     echo "artifact=${artifact}" >> $GITHUB_OUTPUT
 
       # - name: upload
       #   uses: actions/upload-artifact@v3
