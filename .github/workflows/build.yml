@@ -49,10 +49,24 @@ jobs:
           pip install wheel numpy && \
           ${{ matrix.torch_install_cmd }}
 
+      - name: Restore cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ./build
+          key: ${{ matrix.python }}-${{ matrix.cuda }}-build
+
       - name: Build
         run: |
           export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
           python setup.py bdist_wheel
+
+      - name: Save Primes
+        id: cache-save
+        uses: actions/cache/save@v4
+        with:
+          path: ./build
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
       - name: Commit push
         run: |
