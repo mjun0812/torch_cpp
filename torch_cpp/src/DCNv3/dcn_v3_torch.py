@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from torch_cpp import DCNv3
+from .dcn_v3 import DCNv3
 
 
 class DCNv3_pytorch(DCNv3):
