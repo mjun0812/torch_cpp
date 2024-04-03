@@ -11,26 +11,42 @@ jobs:
     strategy:
       matrix:
         include:
-          # - cuda: "11.8.0"
-          #   python: "3.11"
-          #   torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
-          #   path: torch_cpp-1.0.0+torch212cu118-cp311-cp311-linux_x86_64.whl
-          #   sleep: 0
-          # - cuda: "11.8.0"
-          #   python: "3.10"
-          #   torch_install_cmd: pip install torch==2.1.2+cu118 --index-url https://download.pytorch.org/whl/cu118
-          #   path: torch_cpp-1.0.0+torch212cu118-cp310-cp310-linux_x86_64.whl
-          #   sleep: 20
+          # torch 2.1.2
+          - cuda: "11.8.0"
+            python: "3.11"
+            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp311-cp311-linux_x86_64.whl
+          - cuda: "11.8.0"
+            python: "3.10"
+            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp310-cp310-linux_x86_64.whl
           - cuda: "12.1.1"
             python: "3.11"
-            torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
             path: torch_cpp-1.0.0+torch212cu121-cp311-cp311-linux_x86_64.whl
-            sleep: 40
-          # - cuda: "12.1.1"
-          #   python: "3.10"
-          #   torch_install_cmd: pip install torch==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
-          #   path: torch_cpp-1.0.0+torch212cu121-cp310-cp310-linux_x86_64.whl
-          #   sleep: 60
+          - cuda: "12.1.1"
+            python: "3.10"
+            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+            path: torch_cpp-1.0.0+torch212cu121-cp310-cp310-linux_x86_64.whl
+
+          # torch 2.2.1
+          - cuda: "11.8.0"
+            python: "3.11"
+            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp311-cp311-linux_x86_64.whl
+          - cuda: "11.8.0"
+            python: "3.10"
+            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu118
+            path: torch_cpp-1.0.0+torch212cu118-cp310-cp310-linux_x86_64.whl
+          - cuda: "12.1.1"
+            python: "3.11"
+            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
+            path: torch_cpp-1.0.0+torch212cu121-cp311-cp311-linux_x86_64.whl
+          - cuda: "12.1.1"
+            python: "3.10"
+            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
+            path: torch_cpp-1.0.0+torch212cu121-cp310-cp310-linux_x86_64.whl
+          
     steps:
       - uses: actions/checkout@v4
 
@@ -62,9 +78,6 @@ jobs:
             torch_cpp.egg-info
           key: ${{ matrix.python }}-${{ matrix.cuda }}-build-${{ github.sha }}
           restore-keys: ${{ matrix.python }}-${{ matrix.cuda }}-build-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: Build
         run: |
