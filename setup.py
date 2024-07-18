@@ -18,7 +18,7 @@ def get_extensions():
     # sources = main_file + source_cpu
     sources = main_file
     extension = CppExtension
-    extra_compile_args = {"cxx": []}
+    extra_compile_args = {"cxx": ["-O3"]}
     define_macros = []
 
     if CUDA_HOME is not None:
@@ -33,6 +33,8 @@ def get_extensions():
             "-D__CUDA_NO_HALF_CONVERSIONS__",
             "-D__CUDA_NO_HALF2_OPERATORS__",
             "-O3",
+            "--threads",
+            "4",
         ]
     else:
         return None
@@ -63,7 +65,6 @@ def get_cuda_version():
 
 def get_version():
     init_py_path = os.path.join(os.path.dirname(__file__), "torch_cpp", "__init__.py")
-    version = "1.0.0"
     # get library version
     with open(init_py_path) as f:
         for line in f:

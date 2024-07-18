@@ -1,9 +1,11 @@
 name: Build Package
 
 on:
-  create:
+  push:
+    branches:
+      - main
     tags:
-      - v*
+      - "v*"
 
 jobs:
   setup-release:
