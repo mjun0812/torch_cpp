@@ -91,7 +91,7 @@ jobs:
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
           MAX_JOBS=2 python setup.py bdist_wheel --dist-dir=dist
-          wheel_name=$(ls dist/*.whl | head -n 1)
+          wheel_name=$(ls dist/*.whl | head -n 1 | basename)
           echo "wheel_name=$wheel_name" >> $GITHUB_ENV
 
       - name: Get the tag version
