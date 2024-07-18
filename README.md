@@ -4,6 +4,16 @@ PyTorch C++ Module package.
 
 ## Install
 
+### wheel install
+
+Download whl file from [releases](https://github.com/mjun0812/torch_cpp/releases) and install it.
+
+```bash
+pip install torch_cpp_....whl
+```
+
+### source install
+
 Before installing this repository, you need to install torch and CUDA
 to build module.
 
