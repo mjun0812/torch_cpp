@@ -1,94 +1,39 @@
 name: Build Package
 
 on:
-  push:
-    branches:
-      - main
+  create:
+    tags:
+      - v*
 
 jobs:
+  setup-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: get_version
+        shell: bash
+        run: echo ::set-output name=branch::${GITHUB_REF#refs/tags/}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.branch }}
+          release_name: Release ${{ steps.get_version.outputs.branch }}
+          draft: false
+          prerelease: false
+
   build-package:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          # torch 2.1.2
-          - cuda: "11.8.0"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch212cu118-cp311-cp311-linux_x86_64.whl
-          - cuda: "11.8.0"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch212cu118-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch212cu121-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch212cu121-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch212cu122-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch212cu122-cp310-cp310-linux_x86_64.whl
+        python: ["3.11", "3.10"]
+        torch: ["2.1.2", "2.2.1", "2.3.1"]
+        cuda: ["11.8.0", "12.1.1", "12.2.2"]
 
-          # torch 2.2.1
-          - cuda: "11.8.0"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch221cu118-cp311-cp311-linux_x86_64.whl
-          - cuda: "11.8.0"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch221cu118-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch221cu121-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch221cu121-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch221cu122-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.2.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch221cu122-cp310-cp310-linux_x86_64.whl
-
-          # torch 2.3.1
-          - cuda: "11.8.0"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch231cu118-cp311-cp311-linux_x86_64.whl
-          - cuda: "11.8.0"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu118
-            path: torch_cpp-1.0.0+torch231cu118-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch231cu121-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.1.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch231cu121-cp310-cp310-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.11"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch231cu122-cp311-cp311-linux_x86_64.whl
-          - cuda: "12.2.1"
-            python: "3.10"
-            torch_install_cmd: pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-            path: torch_cpp-1.0.0+torch231cu122-cp310-cp310-linux_x86_64.whl
-          
     steps:
       - name: Maximize build space
         run: |
@@ -100,68 +45,75 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           df -h
           echo "\n\n"
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
 
       - uses: actions/checkout@v4
 
+      # Setup Environment
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-
       - uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda }}
           linux-local-args: '["--toolkit"]'
-          use-github-cache: true
           method: "network"
-
       - run: sudo apt-get install ninja-build
 
-      - name: Install PyTorch
+      - name: Set CUDA and PyTorch versions
         run: |
-          pip install wheel numpy && ${{ matrix.torch_install_cmd }}
+          echo "MATRIX_CUDA_VERSION=$(echo ${{ matrix.cuda }} | awk -F \. {'print $1 $2'})" >> $GITHUB_ENV
+          echo "MATRIX_TORCH_VERSION=$(echo ${{ matrix.torch }} | awk -F \. {'print $1 "." $2'})" >> $GITHUB_ENV
 
-      - name: Save cache
-        id: cache-save
-        uses: actions/cache/@v4
-        with:
-          path: |
-            build
-            dist
-            torch_cpp.egg-info
-          key: ${{ matrix.python }}-${{ matrix.cuda }}-build-${{ github.sha }}
-          restore-keys: ${{ matrix.python }}-${{ matrix.cuda }}-build-
+      - name: Install PyTorch ${{ matrix.torch }}+${{ matrix.cuda }}
+        shell: bash
+        run: |
+          pip install -U pip
+          pip install wheel setuptools numpy packaging
+          export TORCH_CUDA_VERSION=$(python -c "from os import environ as env; \
+            minv = {'2.0': 117, '2.1': 118, '2.2': 118, '2.3': 118, '2.4': 118}[env['MATRIX_TORCH_VERSION']]; \
+            maxv = {'2.0': 118, '2.1': 121, '2.2': 121, '2.3': 121, '2.4': 121}[env['MATRIX_TORCH_VERSION']]; \
+            print(max(min(int(env['MATRIX_CUDA_VERSION']), maxv), minv))" \
+          )
+          pip install --no-cache-dir torch==${{ matrix.torch }} --index-url https://download.pytorch.org/whl/cu${TORCH_CUDA_VERSION}
+          nvcc --version
+          python --version
+          python -c "import torch; print('PyTorch:', torch.__version__)"
+          python -c "import torch; print('CUDA:', torch.version.cuda)"
+          python -c "from torch.utils import cpp_extension; print (cpp_extension.CUDA_HOME)"
 
       - name: Build
         run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
+          export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
-          python setup.py bdist_wheel
+          MAX_JOBS=2 python setup.py bdist_wheel --dist-dir=dist
+          wheel_name=$(ls dist/*.whl | head -n 1)
+          echo "wheel_name=$wheel_name" >> $GITHUB_ENV
 
-      - name: upload
-        uses: actions/upload-artifact@v4
+      - name: Get the tag version
+        id: extract_branch
+        run: echo ::set-output name=branch::${GITHUB_REF#refs/tags/}
+
+      - name: Get Release with tag
+        id: get_current_release
+        uses: joutvhu/get-release@v1
         with:
-          name: whl-${{ matrix.path }}
-          path: dist/${{ matrix.path }}
-          retention-days: 1
+          tag_name: ${{ steps.extract_branch.outputs.branch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  commit:
-    needs: build-package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Downloads
-        uses: actions/download-artifact@v4
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: dist
-          pattern: whl-*
-          merge-multiple: true
-
-      - name: Commit push
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --no-edit
-          git add -f ./dist/*
-          git commit -m 'update wheel' || echo "No Commit File"
-          git push
+          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
+          asset_path: ./dist/${{env.wheel_name}}
+          asset_name: ${{env.wheel_name}}
+          asset_content_type: application/*

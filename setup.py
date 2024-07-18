@@ -1,5 +1,6 @@
 import glob
 import os
+import subprocess
 
 import torch
 from setuptools import find_packages, setup
@@ -50,6 +51,16 @@ def get_extensions():
     return ext_modules
 
 
+def get_cuda_version():
+    try:
+        output = subprocess.check_output(["nvcc", "--version"]).decode("utf-8")
+        for line in output.split("\n"):
+            if "release" in line:
+                return line.split("release")[-1].strip().split(",")[0]
+    except FileNotFoundError:
+        return "nvcc not found. CUDA might not be installed."
+
+
 def get_version():
     init_py_path = os.path.join(os.path.dirname(__file__), "torch_cpp", "__init__.py")
     version = "1.0.0"
@@ -59,7 +70,11 @@ def get_version():
             if line.startswith("__version__"):
                 version = eval(line.split("=")[-1])
     # add torch version
-    version += f"+torch{torch.__version__.replace('.', '').replace('+', '')}"
+    version += f"-torch{torch.__version__.replace('.', '').split('+')[0]}"
+    # add cuda version
+    cuda_version = get_cuda_version()
+    if cuda_version:
+        version += f"-cuda{cuda_version.replace('.', '')}"
     # add build version
     if os.getenv("BUILD_VERSION"):
         version += f"{os.getenv('BUILD_VERSION', '')}"
