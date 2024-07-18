@@ -40,13 +40,12 @@ jobs:
       - name: Maximize build space
         run: |
           df -h
-          echo "\n\n"
+          echo "-----------------------------"
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           df -h
-          echo "\n\n"
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
