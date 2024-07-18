@@ -74,7 +74,7 @@ jobs:
         shell: bash
         run: |
           pip install -U pip
-          pip install wheel setuptools numpy packaging
+          pip install wheel setuptools packaging
           export TORCH_CUDA_VERSION=$(python -c "from os import environ as env; \
             minv = {'2.0': 117, '2.1': 118, '2.2': 118, '2.3': 118, '2.4': 118}[env['MATRIX_TORCH_VERSION']]; \
             maxv = {'2.0': 118, '2.1': 121, '2.2': 121, '2.3': 121, '2.4': 121}[env['MATRIX_TORCH_VERSION']]; \
