@@ -71,11 +71,11 @@ def get_version():
             if line.startswith("__version__"):
                 version = eval(line.split("=")[-1])
     # add torch version
-    version += f"-torch{torch.__version__.replace('.', '').split('+')[0]}"
+    version += f"+torch{torch.__version__.replace('.', '').split('+')[0]}"
     # add cuda version
     cuda_version = get_cuda_version()
     if cuda_version:
-        version += f"-cuda{cuda_version.replace('.', '')}"
+        version += f"cu{cuda_version.replace('.', '')}"
     # add build version
     if os.getenv("BUILD_VERSION"):
         version += f"{os.getenv('BUILD_VERSION', '')}"
