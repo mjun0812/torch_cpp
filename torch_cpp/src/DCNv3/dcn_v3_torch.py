@@ -80,8 +80,12 @@ def dcnv3_core_pytorch(
     # for debug and test only,
     # need to use cuda version instead
 
-    if remove_center and (kernel_h % 2 == 0 or kernel_w % 2 == 0 or kernel_w != kernel_h):
-        raise ValueError("remove_center is only compatible with square odd kernel size.")
+    if remove_center and (
+        kernel_h % 2 == 0 or kernel_w % 2 == 0 or kernel_w != kernel_h
+    ):
+        raise ValueError(
+            "remove_center is only compatible with square odd kernel size."
+        )
 
     input = F.pad(input, [0, 0, pad_h, pad_h, pad_w, pad_w])
     N_, H_in, W_in, _ = input.shape
@@ -127,7 +131,9 @@ def dcnv3_core_pytorch(
     )
     # N_, H_out, W_out, group*P_*2 -> N_, H_out*W_out, group, P_, 2 -> N_, group, H_out*W_out, P_, 2 -> N_*group, H_out*W_out, P_, 2
     sampling_grid_ = (
-        sampling_grids.view(N_, H_out * W_out, group, P_, 2).transpose(1, 2).flatten(0, 1)
+        sampling_grids.view(N_, H_out * W_out, group, P_, 2)
+        .transpose(1, 2)
+        .flatten(0, 1)
     )
     # N_*group, group_channels, H_out*W_out, P_
     sampling_input_ = F.grid_sample(
@@ -144,7 +150,9 @@ def dcnv3_core_pytorch(
         .transpose(1, 2)
         .reshape(N_ * group, 1, H_out * W_out, P_)
     )
-    output = (sampling_input_ * mask).sum(-1).view(N_, group * group_channels, H_out * W_out)
+    output = (
+        (sampling_input_ * mask).sum(-1).view(N_, group * group_channels, H_out * W_out)
+    )
 
     return output.transpose(1, 2).reshape(N_, H_out, W_out, -1).contiguous()
 
@@ -184,6 +192,7 @@ def _get_reference_points(
             dtype=torch.float32,
             device=device,
         ),
+        indexing="ij",
     )
     ref_y = ref_y.reshape(-1)[None] / H_
     ref_x = ref_x.reshape(-1)[None] / W_
@@ -213,10 +222,16 @@ def _generate_dilation_grids(
             dtype=torch.float32,
             device=device,
         ),
+        indexing="ij",
     )
 
     points_list.extend([x / W_, y / H_])
-    grid = torch.stack(points_list, -1).reshape(-1, 1, 2).repeat(1, group, 1).permute(1, 0, 2)
+    grid = (
+        torch.stack(points_list, -1)
+        .reshape(-1, 1, 2)
+        .repeat(1, group, 1)
+        .permute(1, 0, 2)
+    )
     grid = grid.reshape(1, 1, 1, group * kernel_h * kernel_w, 2)
 
     return grid

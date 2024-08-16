@@ -8,7 +8,11 @@ from __future__ import absolute_import, division, print_function
 
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
-from torch.cuda.amp import custom_bwd, custom_fwd
+
+try:
+    from torch.amp import custom_bwd, custom_fwd
+except ImportError:
+    from torch.cuda.amp import custom_bwd, custom_fwd
 
 from torch_cpp import _C
 

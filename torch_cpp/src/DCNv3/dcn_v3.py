@@ -13,8 +13,12 @@ import torch.nn.functional as F
 from torch import nn
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
-from torch.cuda.amp import custom_bwd, custom_fwd
 from torch.nn.init import constant_, xavier_uniform_
+
+try:
+    from torch.amp import custom_bwd, custom_fwd
+except ImportError:
+    from torch.cuda.amp import custom_bwd, custom_fwd
 
 from torch_cpp import _C
 
@@ -69,13 +73,17 @@ def build_act_layer(act_layer):
 
 def _is_power_of_2(n):
     if (not isinstance(n, int)) or (n < 0):
-        raise ValueError("invalid input for _is_power_of_2: {} (type: {})".format(n, type(n)))
+        raise ValueError(
+            "invalid input for _is_power_of_2: {} (type: {})".format(n, type(n))
+        )
 
     return (n & (n - 1) == 0) and n != 0
 
 
 class CenterFeatureScaleModule(nn.Module):
-    def forward(self, query, center_feature_scale_proj_weight, center_feature_scale_proj_bias):
+    def forward(
+        self, query, center_feature_scale_proj_weight, center_feature_scale_proj_bias
+    ):
         center_feature_scale = F.linear(
             query,
             weight=center_feature_scale_proj_weight,
@@ -154,8 +162,12 @@ class DCNv3(nn.Module):
             build_norm_layer(channels, norm_layer, "channels_first", "channels_last"),
             build_act_layer(act_layer),
         )
-        self.offset = nn.Linear(channels, group * (kernel_size * kernel_size - remove_center) * 2)
-        self.mask = nn.Linear(channels, group * (kernel_size * kernel_size - remove_center))
+        self.offset = nn.Linear(
+            channels, group * (kernel_size * kernel_size - remove_center) * 2
+        )
+        self.mask = nn.Linear(
+            channels, group * (kernel_size * kernel_size - remove_center)
+        )
         self.input_proj = nn.Linear(channels, channels)
         self.output_proj = nn.Linear(channels, channels)
         self._reset_parameters()
@@ -221,7 +233,9 @@ class DCNv3(nn.Module):
 
         if self.center_feature_scale:
             center_feature_scale = self.center_feature_scale_module(
-                x1, self.center_feature_scale_proj_weight, self.center_feature_scale_proj_bias
+                x1,
+                self.center_feature_scale_proj_weight,
+                self.center_feature_scale_proj_bias,
             )
             # N, H, W, groups -> N, H, W, groups, 1 -> N, H, W, groups, _d_per_group -> N, H, W, channels
             center_feature_scale = (
