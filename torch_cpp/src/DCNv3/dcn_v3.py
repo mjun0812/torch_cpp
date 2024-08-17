@@ -17,6 +17,9 @@ from torch.nn.init import constant_, xavier_uniform_
 
 try:
     from torch.amp import custom_bwd, custom_fwd
+    import partial
+    custom_fwd = partial(custom_fwd, device_type="cuda")
+    custom_bwd = partial(custom_bwd, device_type="cuda")
 except ImportError:
     from torch.cuda.amp import custom_bwd, custom_fwd
 

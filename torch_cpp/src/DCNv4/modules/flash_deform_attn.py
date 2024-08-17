@@ -115,9 +115,6 @@ class FlashDeformAttn(nn.Module):
         attention_weights = self.attention_weights(query).view(
             N, Len_q, self.n_heads, self.n_levels * self.n_points
         )
-        attention_weights = F.softmax(attention_weights, -1).view(
-            N, Len_q, self.n_heads, self.n_levels, self.n_points
-        )
         # N, Len_q, n_heads, n_levels, n_points, 2
         if reference_points.shape[-1] == 2:
             offset_normalizer = torch.stack(
@@ -141,13 +138,14 @@ class FlashDeformAttn(nn.Module):
                     reference_points.shape[-1]
                 )
             )
+        sampling_locations = sampling_locations.flatten(-3).half()
+        sampling_loc_attn = torch.cat([sampling_locations, attention_weights], dim=-1)
 
         output = FlashDeformAttnFunction.apply(
             value,
             input_spatial_shapes,
             input_level_start_index,
-            sampling_locations,
-            attention_weights,
+            sampling_loc_attn,
             self.im2col_step,
             self.n_points,
         )
