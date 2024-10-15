@@ -96,7 +96,7 @@ jobs:
           export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
-          MAX_JOBS=2 python setup.py bdist_wheel --dist-dir=dist
+          MAX_JOBS=$(nproc) python setup.py bdist_wheel --dist-dir=dist
           wheel_name=$(basename $(ls dist/*.whl | head -n 1))
           echo "wheel_name=$wheel_name" >> $GITHUB_ENV
 
