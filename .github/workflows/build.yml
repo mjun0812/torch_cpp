@@ -80,20 +80,19 @@ jobs:
         run: |
           pip install -U pip
           pip install wheel setuptools packaging
-          export TORCH_CUDA_VERSION=$(python -c " \
-            from os import environ as env; \
-            support_cuda_versions = { \
-              '2.0': [117, 118], \
-              '2.1': [118, 121], \
-              '2.2': [118, 121], \
-              '2.3': [118, 121], \
-              '2.4': [118, 121, 124], \
-              '2.5': [118, 121, 124], \
-            }; \
-            target_cuda_versions = support_cuda_versions[env['MATRIX_TORCH_VERSION']]; \
-            cuda_version = int(env['MATRIX_CUDA_VERSION']); \
-            closest_version = min(target_cuda_versions, key=lambda x: abs(x - cuda_version)); \
-            print(closest_version) \
+          export TORCH_CUDA_VERSION=$(python -c "from os import environ as env; \
+              support_cuda_versions = { \
+                  '2.0': [117, 118], \
+                  '2.1': [118, 121], \
+                  '2.2': [118, 121], \
+                  '2.3': [118, 121], \
+                  '2.4': [118, 121, 124], \
+                  '2.5': [118, 121, 124], \
+              }; \
+              target_cuda_versions = support_cuda_versions[env['MATRIX_TORCH_VERSION']]; \
+              cuda_version = int(env['MATRIX_CUDA_VERSION']); \
+              closest_version = min(target_cuda_versions, key=lambda x: abs(x - cuda_version)); \
+              print(closest_version) \
           ")
           pip install --no-cache-dir torch==${{ matrix.torch }} --index-url https://download.pytorch.org/whl/cu${TORCH_CUDA_VERSION}
           nvcc --version
