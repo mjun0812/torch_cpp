@@ -28,7 +28,7 @@ jobs:
             The wheel file will be uploaded after the build is complete in GitHub Actions.
 
   build-package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: setup-release
     strategy:
       fail-fast: false
