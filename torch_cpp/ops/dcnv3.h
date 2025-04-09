@@ -26,7 +26,7 @@ at::Tensor dcnv3_forward(const at::Tensor &input, const at::Tensor &offset,
                          const int group, const int group_channels,
                          const float offset_scale, const int im2col_step,
                          const int remove_center) {
-  if (input.type().is_cuda()) {
+  if (input.is_cuda()) {
 #ifdef WITH_CUDA
     return dcnv3_cuda_forward(input, offset, mask, kernel_h, kernel_w, stride_h,
                               stride_w, pad_h, pad_w, dilation_h, dilation_w,
@@ -46,7 +46,7 @@ std::vector<at::Tensor> dcnv3_backward(
     const int dilation_w, const int group, const int group_channels,
     const float offset_scale, const at::Tensor &grad_output,
     const int im2col_step, const int remove_center) {
-  if (input.type().is_cuda()) {
+  if (input.is_cuda()) {
 #ifdef WITH_CUDA
     return dcnv3_cuda_backward(input, offset, mask, kernel_h, kernel_w,
                                stride_h, stride_w, pad_h, pad_w, dilation_h,

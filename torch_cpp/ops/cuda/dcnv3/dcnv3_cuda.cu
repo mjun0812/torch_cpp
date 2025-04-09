@@ -9,37 +9,28 @@
 **************************************************************************************************
 */
 
-#include <vector>
-#include "cuda/dcnv3/dcnv3_im2col_cuda.cuh"
-
 #include <ATen/ATen.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <torch/torch.h>
 
-at::Tensor dcnv3_cuda_forward(const at::Tensor& input,
-                              const at::Tensor& offset,
-                              const at::Tensor& mask,
-                              const int kernel_h,
-                              const int kernel_w,
-                              const int stride_h,
-                              const int stride_w,
-                              const int pad_h,
-                              const int pad_w,
-                              const int dilation_h,
-                              const int dilation_w,
-                              const int group,
-                              const int group_channels,
-                              const float offset_scale,
-                              const int im2col_step,
-                              const int remove_center) {
+#include <vector>
+
+#include "cuda/dcnv3/dcnv3_im2col_cuda.cuh"
+
+at::Tensor dcnv3_cuda_forward(
+    const at::Tensor& input, const at::Tensor& offset, const at::Tensor& mask,
+    const int kernel_h, const int kernel_w, const int stride_h,
+    const int stride_w, const int pad_h, const int pad_w, const int dilation_h,
+    const int dilation_w, const int group, const int group_channels,
+    const float offset_scale, const int im2col_step, const int remove_center) {
   AT_ASSERTM(input.is_contiguous(), "input tensor has to be contiguous");
   AT_ASSERTM(offset.is_contiguous(), "offset tensor has to be contiguous");
   AT_ASSERTM(mask.is_contiguous(), "mask tensor has to be contiguous");
-  AT_ASSERTM(input.type().is_cuda(), "input must be a CUDA tensor");
-  AT_ASSERTM(offset.type().is_cuda(), "offset must be a CUDA tensor");
-  AT_ASSERTM(mask.type().is_cuda(), "mask must be a CUDA tensor");
+  AT_ASSERTM(input.is_cuda(), "input must be a CUDA tensor");
+  AT_ASSERTM(offset.is_cuda(), "offset must be a CUDA tensor");
+  AT_ASSERTM(mask.is_cuda(), "mask must be a CUDA tensor");
 
   const int batch = input.size(0);
   const int height_in = input.size(1);
@@ -74,7 +65,7 @@ at::Tensor dcnv3_cuda_forward(const at::Tensor& input,
     auto columns = output_n.select(0, n);
     // AT_DISPATCH_FLOATING_TYPES(
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        input.type(), "ms_deform_attn_forward_cuda", ([&] {
+        input.scalar_type(), "ms_deform_attn_forward_cuda", ([&] {
           dcnv3_im2col_cuda(
               at::cuda::getCurrentCUDAStream(),
               input.data<scalar_t>() + n * im2col_step_ * per_input_size,
@@ -90,32 +81,22 @@ at::Tensor dcnv3_cuda_forward(const at::Tensor& input,
   return output;
 }
 
-std::vector<at::Tensor> dcnv3_cuda_backward(const at::Tensor& input,
-                                            const at::Tensor& offset,
-                                            const at::Tensor& mask,
-                                            const int kernel_h,
-                                            const int kernel_w,
-                                            const int stride_h,
-                                            const int stride_w,
-                                            const int pad_h,
-                                            const int pad_w,
-                                            const int dilation_h,
-                                            const int dilation_w,
-                                            const int group,
-                                            const int group_channels,
-                                            const float offset_scale,
-                                            const at::Tensor& grad_output,
-                                            const int im2col_step,
-                                            const int remove_center) {
+std::vector<at::Tensor> dcnv3_cuda_backward(
+    const at::Tensor& input, const at::Tensor& offset, const at::Tensor& mask,
+    const int kernel_h, const int kernel_w, const int stride_h,
+    const int stride_w, const int pad_h, const int pad_w, const int dilation_h,
+    const int dilation_w, const int group, const int group_channels,
+    const float offset_scale, const at::Tensor& grad_output,
+    const int im2col_step, const int remove_center) {
   AT_ASSERTM(input.is_contiguous(), "input tensor has to be contiguous");
   AT_ASSERTM(offset.is_contiguous(), "offset tensor has to be contiguous");
   AT_ASSERTM(mask.is_contiguous(), "mask tensor has to be contiguous");
   AT_ASSERTM(grad_output.is_contiguous(),
              "grad_output tensor has to be contiguous");
-  AT_ASSERTM(input.type().is_cuda(), "input must be a CUDA tensor");
-  AT_ASSERTM(offset.type().is_cuda(), "offset must be a CUDA tensor");
-  AT_ASSERTM(mask.type().is_cuda(), "mask must be a CUDA tensor");
-  AT_ASSERTM(grad_output.type().is_cuda(), "grad_output must be a CUDA tensor");
+  AT_ASSERTM(input.is_cuda(), "input must be a CUDA tensor");
+  AT_ASSERTM(offset.is_cuda(), "offset must be a CUDA tensor");
+  AT_ASSERTM(mask.is_cuda(), "mask must be a CUDA tensor");
+  AT_ASSERTM(grad_output.is_cuda(), "grad_output must be a CUDA tensor");
 
   const int batch = input.size(0);
   const int height_in = input.size(1);
@@ -158,7 +139,7 @@ std::vector<at::Tensor> dcnv3_cuda_backward(const at::Tensor& input,
     auto grad_output_g = grad_output_n.select(0, n);
     // AT_DISPATCH_FLOATING_TYPES(
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        input.type(), "ms_deform_attn_backward_cuda", ([&] {
+        input.scalar_type(), "ms_deform_attn_backward_cuda", ([&] {
           dcnv3_col2im_cuda(
               at::cuda::getCurrentCUDAStream(), grad_output_g.data<scalar_t>(),
               input.data<scalar_t>() + n * im2col_step_ * per_input_size,
