@@ -123,9 +123,9 @@ std::vector<at::Tensor> dcnv4_cuda_backward(const at::Tensor& value,
   AT_ASSERTM(grad_output.is_contiguous(),
              "grad_output tensor has to be contiguous");
 
-  AT_ASSERTM(value.type().is_cuda(), "input must be a CUDA tensor");
-  AT_ASSERTM(p_offset.type().is_cuda(), "offset must be a CUDA tensor");
-  AT_ASSERTM(grad_output.type().is_cuda(), "grad_output must be a CUDA tensor");
+  AT_ASSERTM(value.is_cuda(), "input must be a CUDA tensor");
+  AT_ASSERTM(p_offset.is_cuda(), "offset must be a CUDA tensor");
+  AT_ASSERTM(grad_output.is_cuda(), "grad_output must be a CUDA tensor");
 
   const int batch = value.size(0);
   const int height_in = value.size(1);
@@ -165,7 +165,7 @@ std::vector<at::Tensor> dcnv4_cuda_backward(const at::Tensor& value,
   for (int n = 0; n < batch / im2col_step_; ++n) {
     auto columns = grad_output_n.select(0, n);
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        value.type(), "dcnv4_backward_cuda", ([&] {
+        value.scalar_type(), "dcnv4_backward_cuda", ([&] {
           dcnv4_col2im_cuda(
               at::cuda::getCurrentCUDAStream(),
               value.data_ptr<scalar_t>() + n * im2col_step_ * per_value_size,
