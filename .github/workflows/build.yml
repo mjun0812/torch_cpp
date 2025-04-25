@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
-        torch: ["2.1.2", "2.2.1", "2.3.1", "2.4.1", "2.5.1", "2.6.0"]
+        torch: ["2.1.2", "2.2.1", "2.3.1", "2.4.1", "2.5.1", "2.6.0", "2.7.0"]
         cuda: ["11.8.0", "12.4.1", "12.6.3"]
         exclude:
           # Python 3.12 supports torch>=2.4.0
@@ -57,7 +57,7 @@ jobs:
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
-          swap-size-gb: 10
+          swap-size-gb: 16
 
       - uses: actions/checkout@v4
 
@@ -92,6 +92,7 @@ jobs:
                   '2.4': [118, 121, 124], \
                   '2.5': [118, 121, 124], \
                   '2.6': [118, 124, 126], \
+                  '2.7': [118, 126, 128], \
               }; \
               target_cuda_versions = support_cuda_versions[env['MATRIX_TORCH_VERSION']]; \
               cuda_version = int(env['MATRIX_CUDA_VERSION']); \
@@ -109,7 +110,7 @@ jobs:
         run: |
           export PATH=/usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
           export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-          export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0+PTX"
+          export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0;10.0;12.0;+PTX"
           MAX_JOBS=2 python setup.py bdist_wheel --dist-dir=dist
           wheel_name=$(basename $(ls dist/*.whl | head -n 1))
           echo "wheel_name=$wheel_name" >> $GITHUB_ENV
